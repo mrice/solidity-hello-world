@@ -10,7 +10,7 @@ Fortunately there's a lightweight framework to help smooth things out: the [Truf
 
 From there, it's as easy as typing truffle compile, truffle test, and etc.
 
-##Start with the tests
+## Start with the tests
 
 Usually hello, world examples write to the console. But Solidity-based smart contracts aren't really, you know, console-based applications. So let's do treat it as a TDD opportunity.
 
@@ -44,7 +44,7 @@ truffle test
 
 Which, as expected fails since we didn't create the implementation yet (remember, TDD).
 
-##Write the hello, world implementation
+## Write the hello, world implementation
 
 Now create a new file in the contracts folder called HelloWorld.sol. In it, we'll write the following:
 
