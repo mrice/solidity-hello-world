@@ -2,7 +2,7 @@
 
 Personally, I struggled to find a simple Solidity **Hello, World** example on the internet to demonstrate the Solidity language. It's not surprising since writing anything in Solidity implies that you need to get your head around lots of complex topics, namely smart contracts and the Ethereum network.
 
-##A little context before we start
+## A little context before we start
 
 I'm a programmer at heart so I  wanted something to get me going on the Solidity programming language itself -- nothing else. That is, I want language constructs first and more complex subjects (e.g., the blockchain) later. To do this, I try to eliminate as many dependencies and complications as possible, which is particularly hard to do in the smart contracts world since Solidity code ultimately runs on the big, complex, and global Ethereum virtual machine.
 
