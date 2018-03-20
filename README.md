@@ -4,45 +4,47 @@ Personally, I struggled to find a simple Solidity **Hello, World** example on th
 
 ## A little context before we start
 
-I'm a programmer at heart so I  wanted something to get me going on the Solidity programming language itself -- nothing else. That is, I want language constructs first and more complex subjects (e.g., the blockchain) later. To do this, I try to eliminate as many dependencies and complications as possible, which is particularly hard to do in the smart contracts world since Solidity code ultimately runs on the big, complex, and global Ethereum virtual machine.
+I'm a programmer at heart so I  wanted something to get me going on the Solidity programming language itself -- nothing else.
 
-Fortunately there's a lightweight framework to help smooth things out: the [Truffle Framework](http://truffleframework.com). Get it running on your machine to save some headaches and reduce your learning curve. Start by making sure you have node.js installed (you'll find a lot of Solidity development also implies a lot of Javascript development, just get used to it). Then follow Truffle's super simple npm-based install instructions.
+That is, I want language constructs first and more complex subjects (e.g., the blockchain) later. To do this, I try to eliminate as many dependencies and complications as possible, which is particularly hard to do in the smart contracts world since Solidity code ultimately runs on the big, complex, and global Ethereum virtual machine.
+
+Fortunately there's a lightweight framework to help smooth things out: the [Truffle Framework](http://truffleframework.com). Get it running on your machine to save some headaches and reduce your learning curve.
+
+Start by making sure you have node.js installed (you'll find a lot of Solidity development also implies a lot of Javascript development; just get used to it). Then follow Truffle's super simple npm-based install instructions.
 
 From there, it's as easy as typing truffle compile, truffle test, and etc.
 
 ## Start with the tests
 
-Usually hello, world examples write to the console. But Solidity-based smart contracts aren't really, you know, console-based applications. So let's do treat it as a TDD opportunity.
+Truffle lets you implement two different types of tests: Javascript/Mocha tests or tests written in the Solidity language itself.
 
-After bumping around in the language a bit I settled on the following test. Create a file in the test folder called HelloWorldTest.sol with the following contents.
+```Javascript
+var HelloWorld = artifacts.require("./HelloWorld.sol");
 
-```solidity
-pragma solidity ^0.4.19;
-
-import "../contracts/HelloWorld.sol";
-import "truffle/Assert.sol";
-
-contract TestHelloWorld {
-
-  function testSayHello() public {
-    HelloWorld helloWorld = new HelloWorld();
-    Assert.equal(helloWorld.sayHello(), "Hello, World!", "Hello world should say hello");
-  }
-
-}
+it("HelloWorld should say hello", function() {
+  HelloWorld.new().then(function(instance) {
+      return instance.sayHello.call();
+    }).then(function(eval) {
+      assert.equal(eval, "Hello, World!", "should be a friendly contract")
+    });
+});
 ```
 
-You can see, we want to create a contract called HelloWorld and have it return the familiar and comforting text universal to all programming languages.
+That's quite a bit of code, unfortunately. But if you're familiar with Javascript and frameworks like Mocha, it might seem a little more reasonable. The important pieces are creating a new() instance of HelloWorld, getting access to the sayHello function, and then evaluating the results of the call to make sure they say "Hello, World!"
 
-Without going in the details, it should look pretty familiar to an experienced programmer. We create a new contract (sorta like a class) called TestHelloWord with a function following the test.... naming pattern. We instantiate a new HelloWorld contract and call sayHello() to get a return string.
+To run it, first make sure you start a local instance of Ethereum by running testrpc.
 
-Using the simple Truffle framework we can try to test it:
+```bash
+testrpc
+```
+
+Using the Truffle framework we can run the tests:
 
 ```bash
 truffle test
 ```
 
-Which, as expected fails since we didn't create the implementation yet (remember, TDD).
+Which, as expected should fail since we didn't create the implementation yet (remember, TDD).
 
 ## Write the hello, world implementation
 
@@ -52,13 +54,13 @@ Now create a new file in the contracts folder called HelloWorld.sol. In it, we'l
 pragma solidity ^0.4.19;
 
 contract HelloWorld {
-  function sayHello() public returns (bytes32) {
+  function sayHello() view public returns (string) {
     return "Hello, World!";
   }
 }
 ```
 
-If you've never seen Solidity code before some of the keywords -- and their placements -- will seem a little odd but likely make some sense if you're an experienced programmer.
+If you've never seen Solidity code before some of the keywords (especially "view") -- and their placements -- will seem a little odd yet familiar if you're an experienced programmer.
 
 Now try the test again and it should pass with a satisfying check mark.
 
@@ -66,8 +68,12 @@ Now try the test again and it should pass with a satisfying check mark.
 truffle test
 ```
 
-## Recap
+## Why I didn't build the tests in Solidity
 
-There's a lot to learn in this example. One call out I'll make now is to notice that the return type isn't string in this example. This is important to note because code running on the Ethereum virtual machine needs to be completely predictable. If we were to return something other than the fixed length byte array of byte32, we could end up with a variable length string, which breaks the model.
+My first version of this repo did, in fact, implement the hello world tests in Solidity (see the history if you want to review).
 
-True, we could have returned a smaller array and save a few ETH in the process, but that's all something for a later example.
+It had an interesting quirk to make it work. In that example, return type of sayHello had to be a byte32 instead of a string. This is important to note because code running on the Ethereum virtual machine needs to be completely predictable from contract to contract. If we were to return something other than the fixed length byte array of byte32, we could end up with a variable length string, which breaks the model.
+
+The Javascript example, since it's not passing a string from one contract to another, let's us do this a little more naturally and supports a contract that we can deploy and get a human readable string from (more on that later). And since the Javascript framework can actually run the contracts on real networks, it comes with many other benefits too.
+
+Of course the drawback is that you have to write in two different languages at once.
